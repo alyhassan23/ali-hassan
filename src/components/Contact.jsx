@@ -61,7 +61,7 @@ const Contact = () => {
           </a>
 
           {/* Phone Card */}
-          <a
+          {/* <a
             href="tel:+923000000000" // Update this
             className="group relative bg-secondary/50 hover:bg-secondary p-5 rounded-xl border border-white/5 transition-all duration-300 hover:-translate-y-1 overflow-hidden"
           >
@@ -71,12 +71,12 @@ const Contact = () => {
               <div className="p-3 bg-primary rounded-lg text-green-500 group-hover:text-white group-hover:bg-green-500 transition-colors shadow-lg">
                 <Phone size={20} />
               </div>
-              {/* <div>
+              <div>
                 <h3 className="text-white font-semibold text-sm">Phone</h3>
                 <p className="text-textMuted text-xs">+92 337 4848230</p>
-              </div> */}
+              </div> 
             </div>
-          </a>
+          </a> */}
 
           {/* Location Card */}
           <div className="group relative bg-secondary/50 p-5 rounded-xl border border-white/5 transition-all duration-300 hover:-translate-y-1 overflow-hidden">
