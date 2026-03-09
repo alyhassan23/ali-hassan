@@ -114,10 +114,10 @@ const Footer = () => {
                   alihassan5025a@gmail.com
                 </a>
               </li>
-              <li className="flex items-start gap-3">
+              {/* <li className="flex items-start gap-3">
                 <span className="text-green-500 mt-1">●</span>
                 <span>+92 337 4848230</span>
-              </li>
+              </li> */}
             </ul>
           </div>
         </div>
