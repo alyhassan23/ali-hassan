@@ -57,7 +57,7 @@ const Contact = () => {
           {/* Email Card */}
           <motion.a
             variants={itemVariants}
-            href="mailto:alihassan5025a@gmail.com"
+            href="mailto:alih.bsse@gmail.com"
             className="group relative bg-secondary/30 backdrop-blur-md hover:bg-white/5 p-6 rounded-2xl border border-white/10 transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] hover:border-accent/50 overflow-hidden"
           >
             {/* Hover Gradient Glow */}
@@ -70,7 +70,7 @@ const Contact = () => {
               <div className="overflow-hidden">
                 <h3 className="text-white font-bold text-base mb-1">Email</h3>
                 <p className="text-textMuted text-sm truncate">
-                  alih.b@gmail.com
+                  alih.bsse@gmail.com
                 </p>
               </div>
             </div>
