@@ -114,7 +114,7 @@ const Hero = () => {
 
           <motion.div variants={itemVariants} className="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
             <a
-              href="/cv.pdf"
+              href="/Ali_Hassan_CV.pdf"
               download="Ali_Hassan_CV.pdf"
               className="group relative inline-flex items-center justify-center gap-2 px-8 py-3 bg-white text-primary font-bold rounded-xl overflow-hidden transition-all shadow-[0_0_20px_rgba(255,255,255,0.3)] hover:shadow-[0_0_30px_rgba(255,255,255,0.5)] hover:scale-105"
             >
