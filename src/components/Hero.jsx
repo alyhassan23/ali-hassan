@@ -39,7 +39,7 @@ const Typewriter = ({ words, wait = 3000 }) => {
   );
 };
 
-// --- THREE.JS PARTICLE CONSTELLATION CANVAS ---
+// --- THREE.JS PARTICLE CONSTELLATION CANVAS (Optimized) ---
 const ParticleCanvas = () => {
   const canvasRef = useRef(null);
 
@@ -47,80 +47,97 @@ const ParticleCanvas = () => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
     renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(60, canvas.offsetWidth / canvas.offsetHeight, 0.1, 1000);
     camera.position.z = 5;
 
-    // --- Create particles ---
-    const PARTICLE_COUNT = 120;
+    // ── Particles ────────────────────────────────────────────────────────
+    // Reduced to 70 (was 120) — 70 still looks great, much less GPU load
+    const PARTICLE_COUNT = 70;
     const positions = new Float32Array(PARTICLE_COUNT * 3);
     const particleArray = [];
 
     for (let i = 0; i < PARTICLE_COUNT; i++) {
       const x = (Math.random() - 0.5) * 14;
       const y = (Math.random() - 0.5) * 10;
-      const z = (Math.random() - 0.5) * 5;
+      const z = (Math.random() - 0.5) * 4;
       positions[i * 3] = x;
       positions[i * 3 + 1] = y;
       positions[i * 3 + 2] = z;
-      particleArray.push({ x, y, z, vx: (Math.random() - 0.5) * 0.004, vy: (Math.random() - 0.5) * 0.004 });
+      particleArray.push({ x, y, z, vx: (Math.random() - 0.5) * 0.003, vy: (Math.random() - 0.5) * 0.003 });
     }
 
     const particleGeo = new THREE.BufferGeometry();
     particleGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-
     const particleMat = new THREE.PointsMaterial({
-      color: 0x818cf8, // indigo-400
-      size: 0.06,
+      color: 0x818cf8,
+      size: 0.065,
       transparent: true,
-      opacity: 0.75,
+      opacity: 0.7,
       sizeAttenuation: true,
     });
-    const particles = new THREE.Points(particleGeo, particleMat);
-    scene.add(particles);
+    scene.add(new THREE.Points(particleGeo, particleMat));
 
-    // --- Connection lines ---
-    const lineMat = new THREE.LineBasicMaterial({ color: 0x6366f1, transparent: true, opacity: 0.15 });
-    const lineGroup = new THREE.Group();
-    scene.add(lineGroup);
+    // ── Pre-allocated LineSegments (NO per-frame object creation) ─────────
+    // Max possible connections = PARTICLE_COUNT * MAX_LINKS_PER_PARTICLE / 2
+    const MAX_LINKS_PER_PARTICLE = 4;
+    const MAX_LINES = (PARTICLE_COUNT * MAX_LINKS_PER_PARTICLE) / 2;
+    const linePositions = new Float32Array(MAX_LINES * 2 * 3); // 2 endpoints × 3 coords
+    const lineGeo = new THREE.BufferGeometry();
+    const linePosAttr = new THREE.BufferAttribute(linePositions, 3);
+    linePosAttr.setUsage(THREE.DynamicDrawUsage);
+    lineGeo.setAttribute("position", linePosAttr);
+    lineGeo.setDrawRange(0, 0); // start with 0 lines
+    const lineMat = new THREE.LineBasicMaterial({ color: 0x6366f1, transparent: true, opacity: 0.18 });
+    scene.add(new THREE.LineSegments(lineGeo, lineMat));
 
-    const MAX_DIST = 2.5;
+    const MAX_DIST = 2.8;
+    const MAX_DIST_SQ = MAX_DIST * MAX_DIST;
 
+    // Update lines using the pre-allocated buffer — no garbage created
     const updateLines = () => {
-      while (lineGroup.children.length) lineGroup.remove(lineGroup.children[0]);
       const pos = particleGeo.attributes.position.array;
-      for (let i = 0; i < PARTICLE_COUNT; i++) {
-        for (let j = i + 1; j < PARTICLE_COUNT; j++) {
+      let lineIdx = 0;
+      const linkCount = new Uint8Array(PARTICLE_COUNT); // track per-particle connections
+
+      for (let i = 0; i < PARTICLE_COUNT && lineIdx < MAX_LINES; i++) {
+        if (linkCount[i] >= MAX_LINKS_PER_PARTICLE) continue;
+        for (let j = i + 1; j < PARTICLE_COUNT && lineIdx < MAX_LINES; j++) {
+          if (linkCount[j] >= MAX_LINKS_PER_PARTICLE) continue;
           const dx = pos[i * 3] - pos[j * 3];
           const dy = pos[i * 3 + 1] - pos[j * 3 + 1];
           const dz = pos[i * 3 + 2] - pos[j * 3 + 2];
-          const dist = Math.sqrt(dx * dx + dy * dy + dz * dz);
-          if (dist < MAX_DIST) {
-            const opacity = (1 - dist / MAX_DIST) * 0.3;
-            const mat = new THREE.LineBasicMaterial({ color: 0x6366f1, transparent: true, opacity });
-            const geo = new THREE.BufferGeometry().setFromPoints([
-              new THREE.Vector3(pos[i * 3], pos[i * 3 + 1], pos[i * 3 + 2]),
-              new THREE.Vector3(pos[j * 3], pos[j * 3 + 1], pos[j * 3 + 2]),
-            ]);
-            lineGroup.add(new THREE.Line(geo, mat));
+          if (dx * dx + dy * dy + dz * dz < MAX_DIST_SQ) {
+            const base = lineIdx * 6;
+            linePositions[base] = pos[i * 3];
+            linePositions[base + 1] = pos[i * 3 + 1];
+            linePositions[base + 2] = pos[i * 3 + 2];
+            linePositions[base + 3] = pos[j * 3];
+            linePositions[base + 4] = pos[j * 3 + 1];
+            linePositions[base + 5] = pos[j * 3 + 2];
+            lineIdx++;
+            linkCount[i]++;
+            linkCount[j]++;
           }
         }
       }
+
+      linePosAttr.needsUpdate = true;
+      lineGeo.setDrawRange(0, lineIdx * 2);
     };
 
     // Mouse parallax
     const mouse = { x: 0, y: 0 };
     const handleMouse = (e) => {
-      mouse.x = (e.clientX / window.innerWidth - 0.5) * 0.4;
-      mouse.y = -(e.clientY / window.innerHeight - 0.5) * 0.4;
+      mouse.x = (e.clientX / window.innerWidth - 0.5) * 0.35;
+      mouse.y = -(e.clientY / window.innerHeight - 0.5) * 0.35;
     };
-    window.addEventListener("mousemove", handleMouse);
+    window.addEventListener("mousemove", handleMouse, { passive: true });
 
-    // Resize handler
     const handleResize = () => {
       const w = canvas.offsetWidth;
       const h = canvas.offsetHeight;
@@ -128,7 +145,7 @@ const ParticleCanvas = () => {
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
     };
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize, { passive: true });
 
     let frame = 0;
     let animId;
@@ -140,22 +157,18 @@ const ParticleCanvas = () => {
       for (let i = 0; i < PARTICLE_COUNT; i++) {
         particleArray[i].x += particleArray[i].vx;
         particleArray[i].y += particleArray[i].vy;
-
-        // Bounce bounds
         if (Math.abs(particleArray[i].x) > 7) particleArray[i].vx *= -1;
         if (Math.abs(particleArray[i].y) > 5) particleArray[i].vy *= -1;
-
         pos[i * 3] = particleArray[i].x;
         pos[i * 3 + 1] = particleArray[i].y;
       }
       particleGeo.attributes.position.needsUpdate = true;
 
-      // Update lines every 3 frames for performance
-      if (frame % 3 === 0) updateLines();
+      // Update lines every 8 frames — invisible at 60fps, saves a LOT of CPU
+      if (frame % 8 === 0) updateLines();
 
-      // Camera parallax on mouse
-      camera.position.x += (mouse.x - camera.position.x) * 0.05;
-      camera.position.y += (mouse.y - camera.position.y) * 0.05;
+      camera.position.x += (mouse.x - camera.position.x) * 0.04;
+      camera.position.y += (mouse.y - camera.position.y) * 0.04;
       camera.lookAt(scene.position);
 
       renderer.render(scene, camera);
@@ -166,6 +179,10 @@ const ParticleCanvas = () => {
       cancelAnimationFrame(animId);
       window.removeEventListener("mousemove", handleMouse);
       window.removeEventListener("resize", handleResize);
+      particleGeo.dispose();
+      lineGeo.dispose();
+      particleMat.dispose();
+      lineMat.dispose();
       renderer.dispose();
     };
   }, []);
@@ -184,16 +201,16 @@ const Hero = () => {
     hidden: { opacity: 0 },
     visible: {
       opacity: 1,
-      transition: { staggerChildren: 0.15, delayChildren: 0.4 },
+      transition: { staggerChildren: 0.12, delayChildren: 0.15 },
     },
   };
 
   const itemVariants = {
-    hidden: { y: 30, opacity: 0 },
+    hidden: { y: 24, opacity: 0 },
     visible: {
       y: 0,
       opacity: 1,
-      transition: { duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+      transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
     },
   };
 
