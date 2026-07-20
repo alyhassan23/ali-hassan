@@ -5,8 +5,25 @@ import {
   FaBootstrap,
   FaDatabase,
   FaCode,
+  FaChartBar,
+  FaChartPie,
+  FaRobot,
+  FaBrain,
+  FaProjectDiagram,
+  FaChartLine,
 } from "react-icons/fa";
-import { SiExpress, SiMysql, SiCplusplus, SiMongodb } from "react-icons/si";
+import { 
+  SiExpress, 
+  SiMysql, 
+  SiCplusplus, 
+  SiMongodb,
+  SiPandas,
+  SiNumpy,
+  SiScikitlearn,
+  SiPytorch,
+  SiDjango,
+  SiFastapi
+} from "react-icons/si";
 
 export const SKILLS = [
   { name: "Python", icon: FaPython, level: "Advanced" },
@@ -19,6 +36,18 @@ export const SKILLS = [
   { name: "Bootstrap", icon: FaBootstrap, level: "Advanced" },
   { name: "React.js", icon: FaReact, level: "Advanced" },
   { name: "MongoDB", icon: SiMongodb, level: "Intermediate" },
+  { name: "Pandas", icon: SiPandas, level: "Intermediate" },
+  { name: "NumPy", icon: SiNumpy, level: "Intermediate" },
+  { name: "Matplotlib", icon: FaChartPie, level: "Intermediate" },
+  { name: "Power BI", icon: FaChartLine, level: "Intermediate" },
+  { name: "Scikit-learn", icon: SiScikitlearn, level: "Intermediate" },
+  { name: "PyTorch", icon: SiPytorch, level: "Intermediate" },
+  { name: "Data Analytics", icon: FaChartBar, level: "Advanced" },
+  { name: "Django", icon: SiDjango, level: "Intermediate" },
+  { name: "FastAPI", icon: SiFastapi, level: "Intermediate" },
+  { name: "RAG", icon: FaProjectDiagram, level: "Intermediate" },
+  { name: "AI", icon: FaRobot, level: "Advanced" },
+  { name: "ML", icon: FaBrain, level: "Advanced" },
 ];
 
 export const EDUCATION = [
