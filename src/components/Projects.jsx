@@ -3,111 +3,92 @@ import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { PROJECTS } from "../data";
+import SectionReveal from "./SectionReveal";
 
 const Projects = () => {
-  // Show only the first 4 projects on the home page
   const displayedProjects = PROJECTS.slice(0, 4);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 30, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.5, ease: "easeOut" } },
-  };
-
   return (
-    <section id="projects" className="py-24 bg-transparent relative">
+    <section id="projects" className="py-28 bg-transparent relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-accent/15 to-transparent" />
+
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-        {/* Header Section with View All Link */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-          className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4"
-        >
+        {/* Header */}
+        <SectionReveal className="flex flex-col md:flex-row justify-between items-end mb-14 gap-6">
           <div className="text-center md:text-left">
-            <h2 className="text-3xl md:text-5xl font-bold text-textMain mb-4">
-              Featured <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-highlight">Work</span>
+            <p className="text-accent text-sm font-semibold tracking-widest uppercase mb-3">Portfolio</p>
+            <h2 className="font-display text-4xl md:text-6xl font-bold text-textMain mb-4">
+              Featured{" "}
+              <span className="text-gradient">Work</span>
             </h2>
-            <p className="text-textMuted text-lg max-w-2xl">
+            <p className="text-textMuted text-lg max-w-xl">
               A selection of projects demonstrating my engineering capabilities.
             </p>
           </div>
           <Link
             to="/projects"
-            className="text-white bg-white/5 hover:bg-white/10 px-6 py-3 rounded-full font-medium flex items-center gap-2 transition-all duration-300 group border border-white/10 hover:border-accent/50"
+            className="shrink-0 text-textMuted bg-white/5 hover:bg-accent/10 hover:text-accent px-6 py-3 rounded-full font-medium flex items-center gap-2 transition-all duration-300 group border border-white/8 hover:border-accent/30 text-sm"
           >
             View all projects{" "}
             <ArrowUpRight
-              size={18}
-              className="group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-accent transition-all"
+              size={16}
+              className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
             />
           </Link>
-        </motion.div>
+        </SectionReveal>
 
         {/* Projects Grid */}
-        <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          className="grid grid-cols-1 md:grid-cols-2 gap-8"
-        >
-          {displayedProjects.map((project) => (
-            <motion.div variants={itemVariants} key={project.id} className="group h-full">
-              <Link
-                to={`/project/${project.id}`}
-                className="block h-full"
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {displayedProjects.map((project, idx) => (
+            <SectionReveal key={project.id} delay={idx * 0.1} yOffset={35}>
+              <motion.div
+                whileHover={{ y: -6 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="group h-full"
               >
-                <div className="bg-secondary/30 backdrop-blur-xl rounded-3xl overflow-hidden border border-white/10 hover:border-accent/50 transition-all duration-500 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)] hover:-translate-y-2 h-full flex flex-col relative">
-                  {/* Decorative glow inside card */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0"></div>
-                  
-                  {/* Image Container */}
-                  <div className="h-64 overflow-hidden relative z-10 m-2 rounded-2xl">
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent z-10"></div>
-                    <img
-                      src={project.image}
-                      alt={project.title}
-                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 ease-in-out"
-                    />
-                    <div className="absolute top-4 right-4 z-20">
-                        <div className="bg-white/10 backdrop-blur-md border border-white/20 text-white text-xs font-bold px-3 py-1.5 rounded-full shadow-lg uppercase tracking-wider">
-                            {project.category}
+                <Link to={`/project/${project.id}`} className="block h-full">
+                  <div className="glass-card rounded-3xl overflow-hidden hover:border-accent/30 transition-all duration-500 hover:shadow-glow-accent-sm h-full flex flex-col relative shadow-card">
+                    {/* Inner hover glow */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-accent/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0 rounded-3xl" />
+
+                    {/* Image */}
+                    <div className="h-60 overflow-hidden relative z-10 m-2.5 rounded-2xl">
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent z-10" />
+                      <img
+                        src={project.image}
+                        alt={project.title}
+                        className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-in-out"
+                      />
+                      <div className="absolute top-4 right-4 z-20">
+                        <div className="bg-white/10 backdrop-blur-md border border-white/15 text-white text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-widest">
+                          {project.category}
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Content */}
+                    <div className="p-7 flex flex-col flex-grow relative z-10">
+                      <h3 className="font-display text-xl md:text-2xl font-bold text-textMain mb-3 group-hover:text-accent transition-colors duration-300 leading-tight">
+                        {project.title}
+                      </h3>
+                      <p className="text-textMuted text-sm leading-relaxed line-clamp-2 mb-6 flex-grow">
+                        {project.desc}
+                      </p>
+
+                      <div className="mt-auto flex items-center text-textMuted text-sm font-medium group-hover:text-accent transition-colors duration-300 gap-1.5">
+                        View Case Study{" "}
+                        <ArrowUpRight
+                          size={16}
+                          className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
+                        />
+                      </div>
                     </div>
                   </div>
-
-                  {/* Content */}
-                  <div className="p-8 flex flex-col flex-grow relative z-10">
-                    <h3 className="text-2xl font-bold text-white mb-3 group-hover:text-accent transition-colors duration-300">
-                      {project.title}
-                    </h3>
-                    <p className="text-textMuted line-clamp-2 mb-6 flex-grow leading-relaxed">
-                      {project.desc}
-                    </p>
-
-                    <div className="mt-auto flex items-center text-white/70 font-medium text-sm group-hover:text-accent transition-colors duration-300">
-                      View Case Study{" "}
-                      <span className="ml-2 group-hover:translate-x-2 transition-transform duration-300">
-                        →
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </Link>
-            </motion.div>
+                </Link>
+              </motion.div>
+            </SectionReveal>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );

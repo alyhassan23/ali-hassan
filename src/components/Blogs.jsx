@@ -3,43 +3,26 @@ import { Link } from "react-router-dom";
 import { ArrowUpRight } from "lucide-react";
 import { motion } from "framer-motion";
 import { BLOGS } from "../data";
+import SectionReveal from "./SectionReveal";
 
 const Blogs = () => {
-  // Show only the first 2 blogs on the home page
   const displayedBlogs = BLOGS.slice(0, 2);
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-      },
-    },
-  };
-
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { y: 0, opacity: 1, transition: { duration: 0.5, ease: "easeOut" } },
-  };
-
   return (
-    <section id="blogs" className="py-24 bg-transparent border-t border-white/5 relative overflow-hidden">
-      {/* Background Decor */}
-      <div className="absolute top-1/2 left-0 w-96 h-96 bg-accent/5 rounded-full blur-[120px] pointer-events-none -translate-y-1/2"></div>
+    <section id="blogs" className="py-28 bg-transparent relative overflow-hidden">
+      <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-accent/15 to-transparent" />
+
+      {/* Ambient side glow */}
+      <div className="absolute top-1/2 left-0 w-96 h-96 bg-accent/5 rounded-full blur-[120px] pointer-events-none -translate-y-1/2" />
 
       <div className="max-w-7xl mx-auto px-6 relative z-10">
-        {/* Header Section with View All Link */}
-        <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.6 }}
-          className="flex flex-col md:flex-row justify-between items-end mb-12 gap-4"
-        >
+        {/* Header */}
+        <SectionReveal className="flex flex-col md:flex-row justify-between items-end mb-14 gap-6">
           <div>
-            <h2 className="text-3xl md:text-5xl font-bold text-textMain mb-4">
-              Latest <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent to-highlight">Insights</span>
+            <p className="text-accent text-sm font-semibold tracking-widest uppercase mb-3">Writing</p>
+            <h2 className="font-display text-4xl md:text-6xl font-bold text-textMain mb-4">
+              Latest{" "}
+              <span className="text-gradient">Insights</span>
             </h2>
             <p className="text-textMuted text-lg">
               Thoughts on Web Development, AI, and Engineering.
@@ -47,59 +30,60 @@ const Blogs = () => {
           </div>
           <Link
             to="/blogs"
-            className="text-white bg-white/5 hover:bg-white/10 px-6 py-3 rounded-full font-medium flex items-center gap-2 transition-all duration-300 group border border-white/10 hover:border-accent/50"
+            className="shrink-0 text-textMuted bg-white/5 hover:bg-accent/10 hover:text-accent px-6 py-3 rounded-full font-medium flex items-center gap-2 transition-all duration-300 group border border-white/8 hover:border-accent/30 text-sm"
           >
             View all articles{" "}
             <ArrowUpRight
-              size={18}
-              className="group-hover:translate-x-1 group-hover:-translate-y-1 group-hover:text-accent transition-all"
+              size={16}
+              className="group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
             />
           </Link>
-        </motion.div>
+        </SectionReveal>
 
         {/* Blogs Grid */}
-        <motion.div 
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-50px" }}
-          className="grid grid-cols-1 md:grid-cols-2 gap-8"
-        >
-          {displayedBlogs.map((blog) => (
-            <motion.div variants={itemVariants} key={blog.id} className="group h-full">
-              <Link
-                to={`/blog/${blog.id}`}
-                className="block h-full"
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          {displayedBlogs.map((blog, idx) => (
+            <SectionReveal key={blog.id} delay={idx * 0.12} yOffset={35}>
+              <motion.div
+                whileHover={{ y: -6 }}
+                transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+                className="group h-full"
               >
-                <div className="bg-secondary/30 backdrop-blur-xl p-8 rounded-3xl border border-white/10 h-full hover:border-accent/50 transition-all duration-500 hover:-translate-y-2 hover:shadow-[0_0_30px_rgba(6,182,212,0.1)] flex flex-col relative overflow-hidden">
-                  {/* Decorative glow inside card */}
-                  <div className="absolute inset-0 bg-gradient-to-br from-highlight/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0"></div>
-                  
-                  {/* Meta Info */}
-                  <div className="flex justify-between items-start mb-6 relative z-10">
-                    <span className="px-3 py-1.5 text-xs font-bold text-white bg-white/10 backdrop-blur-md rounded-full border border-white/10 uppercase tracking-wider">
-                      {blog.category}
-                    </span>
-                    <span className="text-textMuted text-sm font-medium">{blog.date}</span>
-                  </div>
+                <Link to={`/blog/${blog.id}`} className="block h-full">
+                  <div className="glass-card p-8 rounded-3xl h-full hover:border-accent/30 transition-all duration-500 hover:shadow-glow-accent-sm flex flex-col relative overflow-hidden shadow-card">
+                    {/* Inner glow on hover */}
+                    <div className="absolute inset-0 bg-gradient-to-br from-highlight/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-0 rounded-3xl" />
 
-                  {/* Content */}
-                  <h3 className="text-2xl font-bold text-white mb-4 group-hover:text-highlight transition-colors relative z-10 leading-snug">
-                    {blog.title}
-                  </h3>
-                  <p className="text-textMuted leading-relaxed mb-8 flex-grow relative z-10 text-lg">
-                    {blog.excerpt}
-                  </p>
+                    {/* Meta */}
+                    <div className="flex justify-between items-start mb-6 relative z-10">
+                      <span className="px-3 py-1.5 text-xs font-bold text-accent bg-accent/10 border border-accent/20 rounded-full uppercase tracking-widest">
+                        {blog.category}
+                      </span>
+                      <span className="text-textMuted text-xs font-medium">{blog.date}</span>
+                    </div>
 
-                  {/* Read More Link */}
-                  <div className="text-white font-medium flex items-center gap-2 mt-auto group-hover:gap-3 transition-all relative z-10 group-hover:text-accent">
-                    Read More <ArrowUpRight size={18} className="text-accent group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
+                    {/* Content */}
+                    <h3 className="font-display text-xl md:text-2xl font-bold text-textMain mb-4 group-hover:text-highlight transition-colors relative z-10 leading-snug">
+                      {blog.title}
+                    </h3>
+                    <p className="text-textMuted text-sm leading-relaxed mb-8 flex-grow relative z-10">
+                      {blog.excerpt}
+                    </p>
+
+                    {/* Read More */}
+                    <div className="text-textMuted text-sm font-medium flex items-center gap-2 mt-auto group-hover:gap-3 transition-all relative z-10 group-hover:text-accent">
+                      Read Article{" "}
+                      <ArrowUpRight
+                        size={16}
+                        className="text-accent group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform"
+                      />
+                    </div>
                   </div>
-                </div>
-              </Link>
-            </motion.div>
+                </Link>
+              </motion.div>
+            </SectionReveal>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   );
