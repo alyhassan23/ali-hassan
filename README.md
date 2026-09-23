@@ -1,4 +1,4 @@
-- live preview: https://alihassan-nu.vercel.app
+live preview: https://alihassan-nu.vercel.app
 
 # React + Vite
 
